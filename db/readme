@@ -1,0 +1,6 @@
+看准网数据存储结构：
+database：kanzhunDB
+collections：公司名
+    'title':'company',详细数据,
+    'title':'review',job1:[详细评价],job2:[详细评价]
+    'title':'interview',job1:[详细面试经验],job2:[详细面试经验]

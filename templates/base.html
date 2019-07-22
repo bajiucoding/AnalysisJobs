@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap</title>
+    <link href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="/static/bootstrap-tagsinput-latest/src/bootstrap-tagsinput.css" rel="stylesheet">
+
+    <style type="text/css">
+        .label {
+            background: #1abc9c;
+            border: 0;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<!--导航栏部分。暂时没用，先占个位置，以后需要用时再补充-->
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Brand</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
+                <li><a href="#">Link</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">Dropdown <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#">Separated link</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#">One more separated link</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <form class="navbar-form navbar-left">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search">
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="#">Link</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">Dropdown <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#">Separated link</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<!--主体部分-->
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="col-xs-12 col-md-6 head">
+			<form class="form-search">
+				<label style="">城市</label><input class="input-medium search-query" type="text" />
+				<label style="">职位</label><input class="input-medium search-query" type="text" />
+				<button type="submit" class="btn">查找</button>
+			</form>
+		</div>
+		<div class="col-xs-12 col-md-6 head">
+            <div class="row">
+                <div class="col-md-2">
+                    <label style=""><h5>能力标签&nbsp</h5></label>
+
+            </div>
+            <div class="col-md-8">
+                <input name="tags" id="tagsinputval" class="tagsinput" data-role="tagsinput" value="" placeholder="输入后回车"/>
+            </div>
+                <div class="col-md-2">
+                    <button id="ok" onclick="sendtags()">确认</button>
+                </div>
+		    </div>
+		</div>
+	</div>
+    <!--职位列表展示-->
+	<div class="row-fluid">
+		<div class="span12">
+			<tbody class="table" id="data_table">
+				<thead>
+					<tr>
+						<th>职位编号</th>
+						<th>职位名称</th>
+						<th>工资范围</th>
+						<th>工作地点</th>
+						<th>经验要求</th>
+						<th>学历要求</th>
+						<th>公司名称</th>
+						<th>匹配程度</th>
+						<th>推荐指数</th>
+                        <th>投递简历</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% for data in page_info %}
+					<tr class="clickable-row" data-href="{% url 'job:company' {{data.jobId}} {{data.content.2}} %}">
+						<td>{{data.jobId}}</td>
+						<td>{{ data.content.0|default:'空' }}</td>
+						<td>{{data.content.1|default:'空'}}</td>
+						<td>{{data.content.3}}</td>
+						<td>{{data.content.4}}</td>
+						<td>{{data.content.5}}</td>
+						<td id="company">{{data.content.2}}</td>
+						<td id="match">{{data.match_score}}</td>
+						<td id="recommend">{{data.recommended}}</td>
+                        <td><input type="button" value="投递简历"></td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</tbody>
+		</div>
+	</div>
+
+</div>
+
+
+
+
+<div class="container" style="text-align: center">
+    <footer class="bottom">
+    <ul class="pagination">
+        <li>
+        {% if page_info.has_previous %}
+        <a href="{% url 'job:show' %}?page={{page_info.previous_page_number}}">上一页</a>
+            {% else %}
+            <a href="#">上一页</a>
+        {% endif %}
+        </li>
+
+        {% for p in pages %}
+            {% if p == page_info.number %}
+        <li class="active"><a href="{% url 'job:show' %}?page={{p}}">{{p}}</a>
+            {% else %}
+        <li><a href="{% url 'job:show' %}?page={{p}}">{{p}}</a></li>
+            {% endif  %}
+        {% endfor %}
+
+        <li>
+        {% if page_info.has_next %}
+        <a href="{% url 'job:show' %}?page={{page_info.next_page_number}}">下一页</a>
+            {% else %}
+            <a href="#">下一页</a>
+        {% endif %}
+        </li>
+    </ul>
+        </footer>
+</div>
+
+<script type="text/javascript">
+        function sendtags(){
+            tags = $("#tagsinputval").val();//tagsinput('items');
+            alert(tags);
+            params = {
+                'tags':tags,
+            };
+            $.get('/job/getTags',params,function (data) {
+                // alert("后台数据："+data);
+                if(data.status == 1){
+                    alert("能力标签创建成功");
+                }
+                var tr = $("#data_table").find('tr');
+                console.log(tr);
+                console.log($("#data_table"));
+                // alert("match数据是："+data["match"]);
+                $.each(data,function (index,value) {
+                    if(index == 'status'){
+                        alert('status');
+                    }
+                    if(index == 'match'){
+                        $.each(value,function (k,v) {
+                            for(var i=0;i<tr.length;i++) {
+                                if ($(tr[i]).find('td').eq(6).text() == k) {
+                                    console.log(v);
+                                    $(tr[i]).find('td').eq(7).text(v);
+                                }
+                            }
+                        });
+                    }
+                    if(index == 'recommend'){
+                        $.each(value,function (k,v) {
+                            for(var i=0;i<tr.length;i++) {
+                                if ($(tr[i]).find('td').eq(6).text() == k) {
+                                    console.log(v);
+                                    $(tr[i]).find('td').eq(8).text(4);
+                                }
+                            }
+                        });
+                    }
+                });
+
+
+            });
+        }
+        function clearAll(){
+            // $('input').tagsinput('removeAll');
+            if(confirm("是否要全部清除？")){
+            $("#tagsinputval").tagsinput('removeALL');
+        }
+        }
+    </script>
+
+<script src="/static/bootstrap-3.3.7-dist/js/jquery-1.12.4.min.js"></script>
+<script src="/static/bootstrap-3.3.7-dist/js/bootstrap.js"></script>
+<script src="/static/bootstrap-tagsinput-latest/src/bootstrap-tagsinput.js"></script>
+<script src="/static/bootstrap-tagsinput-latest/src/bootstrap-tagsinput-angular.js"></script>
+
+
+</body>
+</html>
