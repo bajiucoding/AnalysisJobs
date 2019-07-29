@@ -15,7 +15,6 @@ import logging
 
 # logger = logger('URLManager')
 
-logger = logging.getLogger('django_console')
 class URLManager():
     # url管理类。url集合存储在redis中
 
@@ -41,6 +40,10 @@ class URLManager():
         :param url: 单个链接
         :return:
         '''
+        if 'www.zhipin.com' in url:
+            logger = logging.getLogger('boss')
+        else:
+            logger = logging.getLogger('kanzhun')
         logger.info('开始向['+self.new_url+']中添加待爬取url')
         if not url:
             return None
@@ -56,7 +59,7 @@ class URLManager():
         :param urls: 待爬取链接。集合
         :return:
         '''
-        logger.info('开始向[' + self.new_url + ']中添加待爬取url')
+        # logger.info('开始向[' + self.new_url + ']中添加待爬取url')
         if not urls:
             return None
         for url in urls:
@@ -74,13 +77,13 @@ class URLManager():
         获取即将要爬取的新链接
         :return:
         '''
-        logger.info('开始从[' + self.new_url + ']中获取待爬取url')
+        # logger.info('开始从[' + self.new_url + ']中获取待爬取url')
         new_url = self.conn.spop(self.new_url)
-        logger.info('还有'+str(self.conn.scard(self.new_url))+'条链接待爬取')
+        # logger.info('还有'+str(self.conn.scard(self.new_url))+'条链接待爬取,当前待爬取链接'+new_url)
         #引入hashlib库，将url进行md5转化，并只取中间128位，减少数据长度，节省内存。
         m = hashlib.md5()
         m.update(new_url.encode())
-        logger.info('开始向[' + self.old_url + ']中添加已爬取url')
+        # logger.info('开始向[' + self.old_url + ']中添加已爬取url')
         self.conn.sadd(self.old_url,m.hexdigest()[8:-8])
         return new_url
 

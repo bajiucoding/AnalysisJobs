@@ -1,11 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>静态文件测试</title>
-</head>
-<body>
-<h1>静态文件加载测试</h1>
-<img src="/static/images/11.jpg">
-</body>
-</html>
+{% extends 'base.html' %}
+{% block table %}
+<h3>面试难度</h3>
+<!--<label>公司标签</label>-->
+<table>
+	<thead>
+	<tr>
+		<td>面试人</td>
+		<td>面试时间</td>
+		<td>面试内容</td>
+	</tr>
+	</thead>
+	<tbody>
+	{#这里写一个循环，读取公司评价的详细内容#}
+	<tr>
+		<td>人</td>
+		<td>时间</td>
+		<td>内容</td>
+	</tr>
+	</tbody>
+</table>
+{% endblock table %}

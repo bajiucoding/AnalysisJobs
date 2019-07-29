@@ -9,11 +9,12 @@ change activity:
             2019/7/13 16:16
 '''
 from django.conf.urls import url
-from .views import show,getTags,getCompany
+from .views import getCompany,index,index_data,analysis
 
 urlpatterns = [
-    url(r'^$', show, name='show'),
-    url(r'getTags',getTags,name='getTags'),
-    url(r'company/(?P<jobId>\d+)/(?P<company>\.+))',getCompany,name='company')
+    url(r'^$', index, name='index'),
+    url(r'jobs',index_data,name='index_data'),
+    url(r'analysis',analysis,name='analysis'),
+    url(r'company',getCompany,name='company')
     # url(r'jobs/(?P<page>\d+)', show, name='show_page'),
 ]

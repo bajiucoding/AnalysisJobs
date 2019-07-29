@@ -13,10 +13,8 @@ from abc import ABCMeta,abstractmethod
 from urllib.parse import urljoin
 import re
 import logging
-from job.spider.log import logger
 
-logger = logger('BossHTMLAnalysis')
-logger1 = logging.getLogger('django_console')
+logger = logging.getLogger('boss')
 
 job_info = {}
 class HTMLAnalysis(metaclass=ABCMeta):
@@ -50,7 +48,7 @@ class JobHTMLAnalysis(HTMLAnalysis):
         '''
         if not url or not html:
             logger.info('传入参数不完整')
-            return None
+            return set(),None
         logger.info('开始解析职位列表页面')
         soup = BeautifulSoup(html,'html.parser')
         new_url = self.getNewUrl(url,soup)
@@ -71,7 +69,7 @@ class JobHTMLAnalysis(HTMLAnalysis):
         for job in jobs:
             href = job.find('div','info-primary').find('a')['href']
             new_url = urljoin(url,href)
-            logger.info('解析到新的详情界面url'+new_url)
+            logger.info('解析到新的详情界面url:'+new_url)
             new_urls.add(new_url)
         logger.info('getNewURL方法执行完毕')
         return new_urls
@@ -83,13 +81,15 @@ class JobHTMLAnalysis(HTMLAnalysis):
         :param soup:
         :return:
         '''
+        logger.info('开始获得职位列表界面的数据')
         result = []
         jobs = soup.find_all('div','job-primary')
+        city = soup.find('div','city-sel').find('span','label-text').find('b').string
         for job in jobs:
             jobId = job.find('div','info-primary').find('a')['data-jobid']
             result.append(job.find('div','job-title').string)     #获取职位名
             result.append(job.find('span', 'red').string)          #获取工资
-            result.append(job.find('div', 'company-text').find('a').string)   #获取公司名称
+            result.append(job.find('div', 'company-text').find('a').string.replace('.',''))   #获取公司名称
             # 获取公司地址、经验、学历要求。在一个p标签内还有e标签，先找到p标签，再找到其子标签
             response1 = job.find('div', 'info-primary').find('p').contents
             result.append(response1[0])                         #获取工作地点
@@ -106,9 +106,11 @@ class JobHTMLAnalysis(HTMLAnalysis):
                 result.append(response2[2])
                 result.append(response2[4])
             # job_info['jobId'] = jobId
+            result.append(city)
             job_info[jobId] = [i for i in result]
             result.clear()
             print(job_info[jobId])
+        logger.info('已经获得了职位列表界面的数据')
         return job_info
 
 class DetailHTMLAnalysis(HTMLAnalysis):
@@ -119,7 +121,7 @@ class DetailHTMLAnalysis(HTMLAnalysis):
     def parse(self,url,html):
         if not url or not html:
             logger.info('传入参数不完整')
-            return None
+            return None,None
         logger.info('开始解析职位详情页面')
         soup = BeautifulSoup(html,'html.parser')
         new_url = self.getNewUrl(url,soup)
@@ -128,7 +130,7 @@ class DetailHTMLAnalysis(HTMLAnalysis):
         return new_url,new_data
 
     def getNewUrl(self,url,soup):
-        return None
+        return set()
 
     def getNewData(self,url,soup):
         '''
@@ -143,11 +145,17 @@ class DetailHTMLAnalysis(HTMLAnalysis):
             logger.info('参数错误')
             return None
         logger.info('开始获取职位详情数据'+url)
+        error = soup.find('div','error-content')
+        logger.info(error)
+        if soup.find('div','error-content'):
+            logger.info('工作详情界面不存在')
+            return None
         job = soup.find('div','detail-op').find('a')['ka']
         jobId = re.search(r'\d+',job).group(0)
+
         details = soup.find('div', 'detail-content').find('div', 'text').contents
         logger.info('获取了职位详情数据**'+str(len(details))+'***'+jobId)
-        assert details is not None, "未获取到职位详情数据"
+
         for i in range(len(details)):
             if i % 2 != 0:
                 continue
@@ -157,8 +165,8 @@ class DetailHTMLAnalysis(HTMLAnalysis):
         #details是一个列表，里边包含有tag和None，要过滤掉
         detail = ''.join(i.strip() for i in details if type(i) is not 'bs4.element.Tag' and len(i)!=0).replace(' ','')
         logger.info('当前获得的职位信息'+detail)
-        logger.info('当前职位列表信息'+str(job_info[jobId]))
-        logger.info(str(job_info[jobId].append(detail)))
+        # logger.info('当前职位列表信息'+str(job_info[jobId]))
+        # logger.info(str(job_info[jobId].append(detail)))
         # job_info[jobId].append(detail)
         info = [jobId,year,detail]
         return info

@@ -11,22 +11,22 @@ change activity:
 import requests,logging,re
 # from job.spider.log import logger
 from job.spider.spiderHelper import Proxy,get_agent
+from job.spider.ProxyVaildate.proxyProvider import able_ip
 from bs4 import BeautifulSoup
 import logging
 # logger = logger('HTMLdownload')
-logger = logging.getLogger('django_console')
 
 class HTMLDownload():
     #下载html
 
     def __init__(self):
         # 获取一个随机ip
-        self.ip = Proxy().get()
+        self.ip = able_ip()
         # 获取一个随机agent
         self.headers = get_agent()
         #模拟生成代理
-        self.proxies = {'http':'http://'+self.ip[0]+':'+self.ip[1],
-                        'https':'https://'+self.ip[0]+':'+self.ip[1]
+        self.proxies = {'http':'http://'+self.ip,
+                        'https':'https://'+self.ip
                         }
 
     def download(self,url):
@@ -35,6 +35,10 @@ class HTMLDownload():
         :param url:
         :return:
         '''
+        if 'www.zhipin.com' in url:
+            logger = logging.getLogger('boss')
+        else:
+            logger = logging.getLogger('kanzhun')
         logger.info('开始下载当前url[' + str(url) + ']')
         #测试ip是否可用
 

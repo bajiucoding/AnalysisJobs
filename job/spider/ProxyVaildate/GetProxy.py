@@ -80,13 +80,14 @@ class GetProxy():
     def start(self):
         #启动代理ip爬虫程序
         page = 1
-        kuai_ip = 'https://www.kuaidaili.com/free/inha/' + str(page) + '/'  # 快代理
-        xici_ip = 'https://www.xicidaili.com/nn/' + str(page-10)  # 西刺代理
+        kuai_ip = 'https://www.kuaidaili.com/free/inha/' + str(page-20) + '/'  # 快代理
+        xici_ip = 'https://www.xicidaili.com/nn/' + str(page)  # 西刺代理
         url = xici_ip if page < 20 else kuai_ip            #爬取西刺ip前20页，之后爬取快ip
+        page += 1
         html = self.download(url)
         self.parse(url,html)
 
-pro = GetProxy()
-url = 'https://www.kuaidaili.com/free/inha/1'
-res = pro.download(url)
-pro.parse(url,res)
+# pro = GetProxy()
+# url = 'https://www.kuaidaili.com/free/inha/1'
+# res = pro.download(url)
+# pro.parse(url,res)

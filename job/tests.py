@@ -5,7 +5,7 @@ from django.test import TestCase
 from db import DataClass
 
 db_kanzhun = DataClass.DataClass('kanzhunDB')
-company = '康博嘉'
+company = '荔枝微课'
 
 from db.redisPool import getRedis
 db = getRedis()
@@ -15,7 +15,7 @@ db = getRedis()
 #     print(i)
 
 db_boss = DataClass.DataClass('bossDB','bossDB')
-data_boss = list(db_boss.connM.find())
+data_boss = list(DataClass.DataClass('kanzhunDB').connM1[company].find({'title': 'company'},{'interviewDegree':1}))
 # print(data_boss.count())
 # for i in data_boss:
 #     # print(i['content'][10])
@@ -24,6 +24,8 @@ data_boss = list(db_boss.connM.find())
 #     print(i)
 # li = list(data_boss)
 print('列表：&&&&&&&&&&&&&7',data_boss)
+for i in data_boss:
+    print(i)
 # dblist = db_kanzhun.connM1.collection_names()
 # data_kanzhun = db_kanzhun.connM1[company].find({'title':'company'})
 # d1 =  db_kanzhun.connM1[company].find_one()

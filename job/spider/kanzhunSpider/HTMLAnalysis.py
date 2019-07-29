@@ -16,7 +16,7 @@ import logging
 # from job.spider.log import logger
 
 # logger = logger('KanZhunHTMLAnalysis')
-logger = logging.getLogger('django_console')
+logger = logging.getLogger('kanzhun')
 
 class HTMLAnalysis(metaclass=ABCMeta):
     '''
@@ -24,7 +24,7 @@ class HTMLAnalysis(metaclass=ABCMeta):
     '''
 
     @abstractmethod
-    def parse(self, url, html):
+    def parse(self, url, html,*args):
         pass
 
     @abstractmethod
@@ -40,13 +40,14 @@ class CompanyHTMLAnalysis(HTMLAnalysis):
     boss直聘职位列表页面html的解析
     '''
 
-    def parse(self,url,html):
+    def parse(self,url,html,*args):
         '''
         重写虚类的parse方法，解析html
         :param url: 当前页面的url
         :param html: 当前页面得到的text即html文件
         :return:
         '''
+        company = args[0]
         if not url or not html:
             logger.info('传入参数不完整')
             return None
@@ -55,7 +56,10 @@ class CompanyHTMLAnalysis(HTMLAnalysis):
         if soup.find('p','f_16 mb15'):
             #说明看准网没有这家公司的信息
             logger.info('看准网没有这家公司的信息')
-            return None
+            return None,None
+        if soup.find('a',ka='com1-title').string != company:
+            logger.info('看准网没有这家公司的信息')
+            return None,None
         new_url = self.getNewUrl(url,soup)
         new_data = self.getNewData(url,soup)
         logger.info('解析公司列表页面html成功')
@@ -116,7 +120,7 @@ class ReviewHTMLAnalysis(HTMLAnalysis):
     公司评价详情界面HTML解析。形如gsr
     '''
 
-    def parse(self,url,html):
+    def parse(self,url,html,*args):
         if not url or not html:
             logger.info('传入参数不完整')
             return None
@@ -184,7 +188,7 @@ class ReviewDetailHTMLAnalysis(HTMLAnalysis):
         soup = BeautifulSoup(html,'html.parser')
         if soup.find('p','grey_99 f_14 mt5'):
             logger.info('这家公司没有点评')
-            return None
+            return None,None
         new_url = self.getNewUrl(url,soup)
         new_data = self.getNewData(url,soup)
         logger.info('解析公司评价详情页面html成功')
@@ -262,7 +266,7 @@ class InterviewHTMLAnalysis(HTMLAnalysis):
         soup = BeautifulSoup(html, 'html.parser')
         if soup.find('p','grey_99 f_14 mt5'):
             logger.info('这家公司现在没有面试经验，后边不用解析了')
-            return None
+            return None,None
         new_url = self.getNewUrl(url, soup)
         new_data = self.getNewData(url, soup)
         logger.info('解析公司面试经验页面html成功')

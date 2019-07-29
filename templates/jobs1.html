@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block table %}
+<div class="row-fluid">
+		<div class="span12">
+			<table class="table" id="data_table">
+				<thead>
+					<tr>
+						<th>职位编号</th>
+						<th>职位名称</th>
+						<th>工资范围</th>
+						<th>工作地点</th>
+						<th>经验要求</th>
+						<th>学历要求</th>
+						<th>公司名称</th>
+						<th>匹配程度</th>
+						<th>推荐指数</th>
+                        <th>投递简历</th>
+					</tr>
+				</thead>
+        <tbody>
+        {% for data in data_boss %}
+
+					<tr class="clickable-row" data-href="{% url 'job:company'%}/?id={{data.jobId}}&company={{data.content.2}} ">
+						<td>{{data.jobId}}</td>
+						<td>{{ data.content.0|default:'空' }}</td>
+						<td>{{data.content.1|default:'空'}}</td>
+						<td>{{data.content.3}}</td>
+						<td>{{data.content.4}}</td>
+						<td>{{data.content.5}}</td>
+						<td id="company">{{data.content.2}}</td>
+						<td id="match">{{data.match}}</td>
+						<td id="recommend">{{data.recommend}}</td>
+						<td><a href="/job/company/?company={{data.content.2}}&jobId={{data.jobId}}" class="button">查看详情</a></td>
+					</tr>
+				{% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+
+
+<div class="container" style="text-align: center">
+    <footer class="bottom">
+    <ul class="pagination">
+		<li>
+			<a href="{% url 'job:analysis' %}?city={{request.session.city}}&job={{request.session.job}}&page=1">第一页</a>
+		</li>
+        <li>
+        {% if page > 1 %}
+        <a href="{% url 'job:analysis' %}?city={{request.session.city}}&job={{request.session.job}}&page={{page|add:'-1'}}">上一页</a>
+            {% else %}
+            <a href="#">上一页</a>
+        {% endif %}
+        </li>
+
+        {% for p in page_counts %}
+            {% if p == page %}
+        <li class="active"><a href="{% url 'job:analysis' %}?city={{request.session.city}}&job={{request.session.job}}&page={{p}}">{{p}}</a>
+            {% else %}
+        <li><a href="{% url 'job:analysis' %}?city={{request.session.city}}&job={{request.session.job}}&page={{p}}">{{p}}</a></li>
+            {% endif  %}
+        {% endfor %}
+
+        <li>
+        {% if page < page_count %}
+        <a href="{% url 'job:analysis' %}?city={{request.session.city}}&job={{request.session.job}}&page={{page|add:'1'}}">下一页</a>
+            {% else %}
+            <a href="#">下一页</a>
+        {% endif %}
+        </li>
+		<li>
+			<a href="{% url 'job:analysis' %}?city={{request.session.city}}&job={{request.session.job}}&page={{page_count}}">最后一页</a>
+		</li>
+    </ul>
+        </footer>
+</div>{% endblock table %}
+{% block script %}
+<script>
+    function search(){
+        alert('search方法被调用');
+        var url = 'job/analysis';
+        var param = {
+            'city':$("#city"),
+            'job':$("#job"),
+        };
+        alert("准备执行ajax");
+        $.post(url,param,function (data) {
+            alert('获得数据成功');
+
+        });
+    }
+
+    $(function () {
+        $("#jobs_table").bootstrapTable({
+            ajax:function (request) {
+                $.ajax({
+                    type:'GET',
+                    url:'job/index',
+                    contentType:"application/json;charset=utf-8",
+                    dataType:'jsonp',
+                    data:'',
+                    jsonp:'callback',
+                    succcess:function (msg) {
+                        request.success({row:msg});
+                    $("#table").bootstrapTable('load',msg);
+                    },
+                    error:function () {
+                        alert('加载失败');
+                    }
+                });
+            },
+            cache: false, // 设置为 false 禁用 AJAX 数据缓存， 默认为true
+            striped: true,  //表格显示条纹，默认为false
+            pagination: true, // 在表格底部显示分页组件，默认false
+            pageList: [10, 20], // 设置页面可以显示的数据条数
+            pageSize: 10, // 页面数据条数
+            pageNumber: 1, // 首页页码
+            sidePagination: 'server', // 设置为服务器端分页
+            queryParams: function (param) { // 请求服务器数据时发送的参数，可以在这里添加额外的查询参数，返回false则终止请求
+
+          return {
+              pageSize: params.limit, // 每页要显示的数据条数
+              offset: params.offset, // 每页显示数据的开始行号
+              sort: params.sort, // 要排序的字段
+              sortOrder: params.order, // 排序规则
+          }
+      },
+          sortName: 'id', // 要排序的字段
+          sortOrder: 'desc', // 排序规则
+            onLoadSuccess: function(){  //加载成功时执行
+            console.info("加载成功");
+      },
+          onLoadError: function(){  //加载失败时执行
+                console.info("加载数据失败");
+          }
+
+        })
+    });
+
+</script>
+{% endblock script %}

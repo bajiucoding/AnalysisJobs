@@ -17,22 +17,24 @@ from db import DataClass
 import time,logging
 import random
 
-logger = logging.getLogger('django_console')
+logger = logging.getLogger('kanzhun')
 
 
 class Control():
 
     def __init__(self, company):
         # 初始化
+        logger.info('接收到参数：'+company)
         self.manager = URLManager('kanzhun')
         self.HTMLDownload = HTMLDownload()
-        self.company = CompanyHTMLAnalysis()
+        self.companyAnal = CompanyHTMLAnalysis()
         self.interview = InterviewHTMLAnalysis()
         self.interviewDetail = InterviewDetailHTMLAnalysis()
         self.review = ReviewHTMLAnalysis()
         self.reviewDetail = ReviewDetailHTMLAnalysis()
         self.salary = SalaryHTMLAnalysis()
-        self.connM = DataClass.DataClass('kanzhunDB', company).connM
+        self.company = company
+        self.connM = DataClass.DataClass('kanzhunDB', self.company).connM
 
     def spider(self, root_url):
         '''
@@ -58,7 +60,7 @@ class Control():
             # 判断html，选择合适的解析类
             if 'companyl' in new_url:
                 #公司列表页面 [title,review,salary,interview,photo]
-                new_urls, data = self.company.parse(new_url, html)
+                new_urls, data = self.companyAnal.parse(new_url, html,self.company)
 
                 if not data:
                     self.connM.update({'title': 'company'},
