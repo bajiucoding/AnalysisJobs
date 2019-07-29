@@ -24,17 +24,10 @@ class DataClass():
         # self.connR = getRedis()    redis直接用redisPool
         #生成一个mongo的新连接，返回的是一个集合。这里不用
         if args:
+            #这个连接时指定数据表
             self.connM = getMongo(database,args[0])
 
+        #不指定数据表先建立连接
         self.connM1 = getMongoNocollection(database)
-
-
-    def insert(self,data):
-        '''
-        向mongo中插入新数据
-        :param data: 待插入数据
-        :return:
-        '''
-        self.connM.insert(data)
 
     # def

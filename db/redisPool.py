@@ -10,6 +10,9 @@ change activity:
 '''
 import redis
 from pymongo import MongoClient
+import logging
+
+logger = logging.getLogger('django_console')
 
 # host = '192.168.0.106'
 host = '127.0.0.1'
@@ -33,9 +36,12 @@ def getMongo(database,collection):
     :param collections:集合名称
     :return:
     '''
+    logger.info('*************************'+database+'  '+collection)
     conn = MongoClient(host,portMongo)
     db = conn[database]
+    logger.info('当前连接mongo库：'+database)
     table = db[collection]
+    logger.info('当前集合：'+str(collection))
     return table
 
 def getMongoNocollection(database):

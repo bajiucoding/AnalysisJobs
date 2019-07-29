@@ -127,10 +127,11 @@ CACHES = {
         }
     }
 }
-
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True   #设定缓存时间有效期是浏览器关闭
 #django使用redis作为session配置
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
+
 
 #静态文件相关设置
 STATIC_URL = '/static/'  # 调用时的路径
@@ -176,6 +177,24 @@ LOGGING = {
             'backupCount': 2,  # 备份份数
             'formatter': 'standward',  # 使用的日志格式
         },
+        'boss': {  # 记录到日志文件
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'encoding': 'utf-8',
+            'filename': os.path.join(BASE_DIR, 'log', 'boss_debug.log'),  # 日志输出文件
+            'maxBytes': 1024 * 1024 * 5,  # 文件大小
+            'backupCount': 2,  # 备份份数
+            'formatter': 'standward',  # 使用的日志格式
+        },
+        'kanzhun': {  # 记录到日志文件
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'encoding': 'utf-8',
+            'filename': os.path.join(BASE_DIR, 'log', 'kanzhun_debug.log'),  # 日志输出文件
+            'maxBytes': 1024 * 1024 * 5,  # 文件大小
+            'backupCount': 2,  # 备份份数
+            'formatter': 'standward',  # 使用的日志格式
+        },
         'console': {  # 输出到控制台
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -184,10 +203,20 @@ LOGGING = {
     },
 
     'loggers': {  # logging管理器..这里采用了三种日志记录方式，分别是django---将日志信息输出到文件，django.request---将信息输出到控制台
+        'boss': {
+            'handlers': ['debug'],
+            'level': 'INFO',
+            'propagate': False
+        },
+        'kanzhun': {
+            'handlers': ['debug'],
+            'level': 'INFO',
+            'propagate': True
+        },
         'django_file': {
             'handlers': ['debug'],
             'level': 'DEBUG',
-            'propagate': False
+            'propagate': True
         },
         'django_console': {
             'handlers': ['console'],
